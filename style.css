@@ -1,0 +1,32 @@
+.container {
+  text-align: center;
+}
+
+.board {
+  display: flex;
+  flex-wrap: wrap;
+  width: 310px;
+  margin: 0 auto;
+}
+
+.cell {
+  width: 100px;
+  height: 100px;
+  border: 1px solid #ccc;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 36px;
+  cursor: pointer;
+}
+
+button {
+  margin-top: 20px;
+  font-size: 16px;
+  padding: 10px 20px;
+}
+
+#message {
+  font-weight: bold;
+  margin-top: 20px;
+}
