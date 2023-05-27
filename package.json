@@ -1,0 +1,23 @@
+{
+  "name": "lisatimm-tictactoe",
+  "version": "1.0.0",
+  "description": "",
+  "main": "script.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Lisatii/lisatimm-tictactoe.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Lisatii/lisatimm-tictactoe/issues"
+  },
+  "homepage": "https://github.com/Lisatii/lisatimm-tictactoe#readme",
+  "dependencies": {
+    "express": "^4.18.2",
+    "socket.io": "^4.6.1"
+  }
+}
