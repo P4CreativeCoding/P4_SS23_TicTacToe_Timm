@@ -85,6 +85,12 @@ io.on("connection", function (socket) {
     // Spielzustand an alle Clients senden
     io.emit("gameState", gameState);
   });
+
+  // Client disconnected
+  socket.on("disconnect", function () {
+    connectedPlayers--;
+    console.log("Ein Client hat die Verbindung getrennt.");
+  });
 });
 
 // Funktion zum Überprüfen, ob ein Spieler gewonnen hat

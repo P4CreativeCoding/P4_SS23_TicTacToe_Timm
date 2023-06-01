@@ -41,3 +41,9 @@ socket.on("playerInfo", function (info) {
   playerMessage = info.playerMessage;
   document.getElementById("message").innerText = playerMessage;
 });
+
+// Client disconnected
+socket.on("disconnect", function () {
+  console.log("Verbindung zum Server getrennt.");
+  // Weitere Aktionen bei Server Disconnect
+});
