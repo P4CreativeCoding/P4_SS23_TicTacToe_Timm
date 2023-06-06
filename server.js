@@ -35,7 +35,13 @@ io.on("connection", function (socket) {
 
   // Ersten Spieler als X und zweiten Spieler als O zuweisen
   connectedPlayers++;
-  let playerType = connectedPlayers === 1 ? "X" : "O";
+  let playerType;
+  if (connectedPlayers === 1) {
+    playerType = Math.random() < 0.5 ? "X" : "O";
+    gameState.currentPlayer = playerType;
+  } else {
+    playerType = gameState.currentPlayer;
+  }
   let playerMessage = `Du spielst Spieler ${playerType}`;
 
   // Spielzustand an den Client senden
