@@ -58,7 +58,7 @@ io.on("connection", function (socket) {
       gameState.board[cellIndex] = gameState.currentPlayer;
 
       // Gewinner überprüfen
-      if (checkWin(gameState.currentPlayer)) {
+      if (checkWin(gameState)) {
         gameState.gameActive = false;
         gameState.winningMessage = `Spieler ${gameState.currentPlayer} hat gewonnen!`;
       } else if (checkDraw()) {
@@ -94,7 +94,7 @@ io.on("connection", function (socket) {
 });
 
 // Funktion zum Überprüfen, ob ein Spieler gewonnen hat
-function checkWin(player) {
+function checkWin(gameState) {
   for (let combination of winningCombinations) {
     let [a, b, c] = combination;
     if (
@@ -117,3 +117,18 @@ const port = 3000;
 http.listen(port, function () {
   console.log("Server is listening on port " + port);
 });
+
+module.exports = {
+  checkWin,
+  checkDraw,
+  winningCombinations: [
+    [0, 1, 2],
+    [3, 4, 5],
+    [6, 7, 8],
+    [0, 3, 6],
+    [1, 4, 7],
+    [2, 5, 8],
+    [0, 4, 8],
+    [2, 4, 6],
+  ],
+};
