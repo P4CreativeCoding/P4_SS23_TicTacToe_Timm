@@ -6,16 +6,8 @@ const io = require("socket.io")(http);
 // Statische Dateien bereitstellen
 app.use(express.static(__dirname + "/public"));
 
-// Spielzustand
-let gameState = {
-  board: ["", "", "", "", "", "", "", "", ""],
-  currentPlayer: "X",
-  gameActive: true,
-  winningMessage: "",
-};
-
-// Spieler, die verbunden sind
-let connectedPlayers = 0;
+// Spielzustände für verschiedene Spiele
+let gameStates = {};
 
 // Gewinnkombinationen
 const winningCombinations = [
@@ -33,16 +25,61 @@ const winningCombinations = [
 io.on("connection", function (socket) {
   // Neuer Client verbunden
 
-  // Ersten Spieler als X und zweiten Spieler als O zuweisen
-  connectedPlayers++;
-  let playerType = connectedPlayers === 1 ? "X" : "O";
-  let playerMessage = `Du spielst Spieler ${playerType}`;
+  // Funktion zum Überprüfen, ob ein Spieler gewonnen hat
+  function checkWin(board) {
+    for (let combination of winningCombinations) {
+      let [a, b, c] = combination;
+      if (board[a] !== "" && board[a] === board[b] && board[a] === board[c]) {
+        return true;
+      }
+    }
+    return false;
+  }
 
-  // Spielzustand an den Client senden
-  socket.emit("gameState", gameState);
+  // Funktion zum Überprüfen, ob das Spiel unentschieden ist
+  function checkDraw(board) {
+    return !board.includes("");
+  }
+
+  // Spieler einem Spiel hinzufügen oder ein neues Spiel erstellen
+  let gameName;
+  for (let name in gameStates) {
+    if (Object.keys(gameStates[name].players).length < 2) {
+      gameName = name;
+      break;
+    }
+  }
+
+  if (!gameName) {
+    gameName = `game${Object.keys(gameStates).length + 1}`;
+    gameStates[gameName] = {
+      board: ["", "", "", "", "", "", "", "", ""],
+      currentPlayer: "X",
+      gameActive: true,
+      winningMessage: "",
+      players: {},
+    };
+  }
+
+  gameStates[gameName].players[socket.id] = { playerType: null };
+
+  socket.join(gameName);
 
   // Spielerinformationen an den Client senden
-  socket.emit("playerInfo", { playerType, playerMessage });
+  socket.emit("playerInfo", {
+    playerType:
+      Object.keys(gameStates[gameName].players).length === 1 ? "X" : "O",
+    playerMessage: `Du spielst Spieler ${
+      Object.keys(gameStates[gameName].players).length === 1 ? "X" : "O"
+    }`,
+  });
+
+  // Spielname an den Client senden
+  socket.emit("gameName", gameName);
+  socket.gameName = gameName;
+
+  // Spielzustand an den Client senden
+  socket.emit("gameState", gameStates[gameName]);
 
   // Zug eines Spielers empfangen
   socket.on("makeMove", function (data) {
@@ -50,68 +87,58 @@ io.on("connection", function (socket) {
 
     // Überprüfen, ob das Spiel aktiv ist, das ausgewählte Feld leer ist und der richtige Spieler am Zug ist
     if (
-      gameState.gameActive &&
-      gameState.board[cellIndex] === "" &&
-      gameState.currentPlayer === playerType
+      gameStates[gameName].gameActive &&
+      gameStates[gameName].board[cellIndex] === "" &&
+      gameStates[gameName].currentPlayer === playerType
     ) {
       // Zug des aktuellen Spielers speichern
-      gameState.board[cellIndex] = gameState.currentPlayer;
+      gameStates[gameName].board[cellIndex] = playerType;
 
       // Gewinner überprüfen
-      if (checkWin(gameState)) {
-        gameState.gameActive = false;
-        gameState.winningMessage = `Spieler ${gameState.currentPlayer} hat gewonnen!`;
-      } else if (checkDraw()) {
-        gameState.gameActive = false;
-        gameState.winningMessage = "Unentschieden!";
+      if (checkWin(gameStates[gameName].board)) {
+        gameStates[gameName].gameActive = false;
+        gameStates[
+          gameName
+        ].winningMessage = `Spieler ${playerType} hat gewonnen!`;
+      } else if (checkDraw(gameStates[gameName].board)) {
+        gameStates[gameName].gameActive = false;
+        gameStates[gameName].winningMessage = "Unentschieden!";
       } else {
         // Spieler wechseln
-        gameState.currentPlayer = gameState.currentPlayer === "X" ? "O" : "X";
+        gameStates[gameName].currentPlayer =
+          gameStates[gameName].currentPlayer === "X" ? "O" : "X";
       }
 
-      // Spielzustand an alle Clients senden
-      io.emit("gameState", gameState);
+      // Spielzustand an alle Clients im Spiel senden
+      io.to(gameName).emit("gameState", gameStates[gameName]);
     }
   });
 
   // Zurücksetzen des Spielfelds empfangen
   socket.on("resetBoard", function () {
-    // Spielzustand zurücksetzen
-    gameState.board = ["", "", "", "", "", "", "", "", ""];
-    gameState.currentPlayer = "X";
-    gameState.gameActive = true;
-    gameState.winningMessage = "";
+    const gameName = socket.gameName;
 
-    // Spielzustand an alle Clients senden
-    io.emit("gameState", gameState);
+    // Spielzustand zurücksetzen
+    if (gameStates[gameName]) {
+      gameStates[gameName].board = ["", "", "", "", "", "", "", "", ""];
+      gameStates[gameName].currentPlayer = "X";
+      gameStates[gameName].gameActive = true;
+      gameStates[gameName].winningMessage = "";
+
+      // Spielzustand an alle Clients im Spiel senden
+      io.to(gameName).emit("gameState", gameStates[gameName]);
+    }
   });
 
   // Client disconnected
   socket.on("disconnect", function () {
-    connectedPlayers--;
-    console.log("Ein Client hat die Verbindung getrennt.");
+    delete gameStates[gameName].players[socket.id];
+    if (Object.keys(gameStates[gameName].players).length === 0) {
+      delete gameStates[gameName];
+    }
   });
 });
 
-// Funktion zum Überprüfen, ob ein Spieler gewonnen hat
-function checkWin(gameState) {
-  for (let combination of winningCombinations) {
-    let [a, b, c] = combination;
-    if (
-      gameState.board[a] !== "" &&
-      gameState.board[a] === gameState.board[b] &&
-      gameState.board[a] === gameState.board[c]
-    ) {
-      return true;
-    }
-  }
-  return false;
-}
-
-// Funktion zum Überprüfen, ob das Spiel unentschieden ist
-function checkDraw() {
-  return !gameState.board.includes("");
-}
 // Server starten
 const port = 3000;
 http.listen(port, function () {
