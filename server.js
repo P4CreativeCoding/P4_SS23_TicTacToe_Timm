@@ -145,7 +145,7 @@ http.listen(port, function () {
   console.log("Server is listening on port " + port);
 });
 
-module.exports = {
+/*module.exports = {
   checkWin,
   checkDraw,
   winningCombinations: [
@@ -158,4 +158,4 @@ module.exports = {
     [0, 4, 8],
     [2, 4, 6],
   ],
-};
+}; */
