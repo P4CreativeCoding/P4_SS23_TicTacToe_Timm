@@ -7,10 +7,19 @@
   <body>
     <div class="container">
       <h1>Tic Tac Toe</h1>
-      <div id="login-form" class="login-form">
-        <input type="text" id="username" placeholder="Benutzername" />
-        <input type="password" id="password" placeholder="Passwort" />
-        <button onclick="login()">Anmelden</button>
+      <div id="login-form">
+        <h2>Login</h2>
+        <form id="login-form" onsubmit="login(event)">
+          <input type="text" id="username" placeholder="Username" required />
+          <input
+            type="password"
+            id="password"
+            placeholder="Password"
+            required
+          />
+          <button type="submit">Login</button>
+        </form>
+        <p id="login-error"></p>
       </div>
       <div id="game-container" style="display: none">
         <div id="board" class="board">
@@ -32,22 +41,5 @@
     </div>
     <script src="/socket.io/socket.io.js"></script>
     <script src="script.js"></script>
-    <script>
-      function login() {
-        var username = document.getElementById("username").value;
-        var password = document.getElementById("password").value;
-
-        // Hier können Sie die Umgebungsvariablen verwenden, um die Anmeldedaten zu überprüfen
-        var validUsername = process.env.VALID_USERNAME;
-        var validPassword = process.env.VALID_PASSWORD;
-
-        if (username === validUsername && password === validPassword) {
-          document.getElementById("login-form").style.display = "none";
-          document.getElementById("game-container").style.display = "block";
-        } else {
-          alert("Ungültiger Benutzername oder Passwort");
-        }
-      }
-    </script>
   </body>
 </html>

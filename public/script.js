@@ -72,3 +72,30 @@ socket.on("disconnect", function () {
   console.log("Verbindung zum Server getrennt.");
   // Weitere Aktionen bei Server Disconnect
 });
+
+function login(event) {
+  event.preventDefault();
+  const username = document.getElementById("username").value;
+  const password = document.getElementById("password").value;
+
+  // Senden der Login-Daten an den Server
+  fetch("/login", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ username, password }),
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      if (data.message === "Login erfolgreich") {
+        // Login erfolgreich, das Spiel anzeigen
+        document.getElementById("login-form").style.display = "none";
+        document.getElementById("game-container").style.display = "block";
+      } else {
+        // Fehler beim Login, Fehlermeldung anzeigen
+        document.getElementById("login-error").textContent =
+          "Ungültige Anmeldeinformationen";
+      }
+    });
+}

@@ -2,9 +2,14 @@ const express = require("express");
 const app = express();
 const http = require("http").createServer(app);
 const io = require("socket.io")(http);
+const bodyParser = require("body-parser");
 
 // Statische Dateien bereitstellen
 app.use(express.static(__dirname + "/public"));
+
+// Middleware für das Parsen von Anfragenkörpern
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
 
 // Spielzustände für verschiedene Spiele
 let gameStates = {};
@@ -137,6 +142,24 @@ io.on("connection", function (socket) {
       delete gameStates[gameName];
     }
   });
+});
+
+// Login-Routen
+app.post("/login", function (req, res) {
+  // Benutzername und Passwort aus dem Anfragekörper erhalten
+  const { username, password } = req.body;
+
+  // Überprüfen, ob Benutzername und Passwort korrekt sind
+  if (
+    username === process.env.VALID_USERNAME &&
+    password === process.env.VALID_PASSWORD
+  ) {
+    // Erfolgreiche Authentifizierung
+    res.status(200).json({ message: "Login erfolgreich" });
+  } else {
+    // Fehlgeschlagene Authentifizierung
+    res.status(401).json({ message: "Ungültige Anmeldeinformationen" });
+  }
 });
 
 // Server starten
