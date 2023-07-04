@@ -7,23 +7,47 @@
   <body>
     <div class="container">
       <h1>Tic Tac Toe</h1>
-      <div id="board" class="board">
-        <div class="cell" onclick="makeMove(0)"></div>
-        <div class="cell" onclick="makeMove(1)"></div>
-        <div class="cell" onclick="makeMove(2)"></div>
-        <div class="cell" onclick="makeMove(3)"></div>
-        <div class="cell" onclick="makeMove(4)"></div>
-        <div class="cell" onclick="makeMove(5)"></div>
-        <div class="cell" onclick="makeMove(6)"></div>
-        <div class="cell" onclick="makeMove(7)"></div>
-        <div class="cell" onclick="makeMove(8)"></div>
+      <div id="login-form" class="login-form">
+        <input type="text" id="username" placeholder="Benutzername" />
+        <input type="password" id="password" placeholder="Passwort" />
+        <button onclick="login()">Anmelden</button>
       </div>
-      <button onclick="resetBoard()">Neustart</button>
-      <p id="player-message"></p>
-      <p id="turn-status"></p>
-      <p id="message"></p>
+      <div id="game-container" style="display: none">
+        <div id="board" class="board">
+          <div class="cell" onclick="makeMove(0)"></div>
+          <div class="cell" onclick="makeMove(1)"></div>
+          <div class="cell" onclick="makeMove(2)"></div>
+          <div class="cell" onclick="makeMove(3)"></div>
+          <div class="cell" onclick="makeMove(4)"></div>
+          <div class="cell" onclick="makeMove(5)"></div>
+          <div class="cell" onclick="makeMove(6)"></div>
+          <div class="cell" onclick="makeMove(7)"></div>
+          <div class="cell" onclick="makeMove(8)"></div>
+        </div>
+        <button onclick="resetBoard()">Neustart</button>
+        <p id="player-message"></p>
+        <p id="turn-status"></p>
+        <p id="message"></p>
+      </div>
     </div>
     <script src="/socket.io/socket.io.js"></script>
     <script src="script.js"></script>
+    <script>
+      function login() {
+        var username = document.getElementById("username").value;
+        var password = document.getElementById("password").value;
+
+        // Hier können Sie die Umgebungsvariablen verwenden, um die Anmeldedaten zu überprüfen
+        var validUsername = process.env.VALID_USERNAME;
+        var validPassword = process.env.VALID_PASSWORD;
+
+        if (username === validUsername && password === validPassword) {
+          document.getElementById("login-form").style.display = "none";
+          document.getElementById("game-container").style.display = "block";
+        } else {
+          alert("Ungültiger Benutzername oder Passwort");
+        }
+      }
+    </script>
   </body>
 </html>
