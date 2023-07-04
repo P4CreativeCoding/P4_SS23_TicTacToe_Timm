@@ -5,3 +5,8 @@ This project is a simple tic-tac-toe game. It allows two players to take turns p
 ## Click here to play
 
 https://tictactoe-6wx2.onrender.com
+
+## Login:
+
+user
+password
